@@ -1,0 +1,4 @@
+-swf alac.swf
+-swf-version 10
+--no-traces
+-main TestFlash

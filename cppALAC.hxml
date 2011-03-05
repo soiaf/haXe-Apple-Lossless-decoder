@@ -1,0 +1,3 @@
+-cpp ./haxecpp
+--no-traces
+-main CPPMain
