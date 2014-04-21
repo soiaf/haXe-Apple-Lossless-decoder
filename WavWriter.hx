@@ -1,7 +1,7 @@
 /*
 ** WavWriter.hx
 **
-** Copyright (c) 2011 Peter McQuillan
+** Copyright (c) 2011-2014 Peter McQuillan
 **
 ** All Rights Reserved.
 **                       
@@ -33,7 +33,7 @@ class WavWriter
 
 		f.writeBytes(buffAsBytes, 0, 4 );
 
-		write_uint32(f, haxe.Int32.ofInt(36 + datasize), 0);
+		write_uint32(f, (36 + datasize), 0);
 		buffAsBytes.set(0,87);
 		buffAsBytes.set(1,65);
 		buffAsBytes.set(2,86);
@@ -49,11 +49,11 @@ class WavWriter
 
 		f.writeBytes(buffAsBytes, 0, 4 );
 
-		write_uint32(f, haxe.Int32.ofInt(16), 0);
+		write_uint32(f, 16, 0);
 		write_uint16(f, 1, 0); // PCM data
 		write_uint16(f, numchannels, 0);
-		write_uint32(f, haxe.Int32.ofInt(samplerate), 0);
-		write_uint32(f, haxe.Int32.ofInt(samplerate * numchannels * Std.int(bitspersample / 8)), 0); // byterate
+		write_uint32(f, samplerate, 0);
+		write_uint32(f, (samplerate * numchannels * Std.int(bitspersample / 8)), 0); // byterate
 		write_uint16(f, (numchannels * Std.int(bitspersample / 8)), 0);
 		write_uint16(f, bitspersample, 0);
 
@@ -64,7 +64,7 @@ class WavWriter
 		buffAsBytes.set(3,97);  // "data" ascii values
 
 		f.writeBytes(buffAsBytes, 0, 4 );
-		write_uint32(f, haxe.Int32.ofInt(datasize), 0);
+		write_uint32(f, datasize, 0);
 	}
 }
 

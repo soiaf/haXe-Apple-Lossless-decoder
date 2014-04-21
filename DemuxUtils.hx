@@ -1,7 +1,7 @@
 /*
 ** DemuxUtils.hx
 **
-** Copyright (c) 2011 Peter McQuillan
+** Copyright (c) 2011-2014 Peter McQuillan
 **
 ** All Rights Reserved.
 **                       
@@ -18,20 +18,20 @@ class DemuxUtils
 
 	public static function MakeFourCC32(ch0 : Int, ch1 : Int, ch2 : Int, ch3 : Int) : haxe.Int32
 	{
-		var retval : haxe.Int32 = haxe.Int32.ofInt(0);
-		var tmp : haxe.Int32 = haxe.Int32.ofInt(ch0);
+		var retval : haxe.Int32 = 0;
+		var tmp : haxe.Int32 = ch0;
 
-		retval = haxe.Int32.shl(tmp,24);
+		retval = tmp << 24;
 
-		tmp = haxe.Int32.ofInt(ch1);
+		tmp = ch1;
 
-		retval = haxe.Int32.or(retval, haxe.Int32.shl(tmp,16));
-		tmp = haxe.Int32.ofInt(ch2);
+		retval = (retval | (tmp << 16));
+		tmp = ch2;
 
-		retval = haxe.Int32.or(retval, haxe.Int32.shl(tmp,8));
-		tmp = haxe.Int32.ofInt(ch3);
+		retval = (retval | (tmp << 8));
+		tmp = ch3;
 
-		retval = haxe.Int32.or(retval, tmp);
+		retval = (retval | tmp);
 
 		return (retval);
 	}
@@ -57,7 +57,7 @@ class DemuxUtils
 
 			try
 			{
-				chunk_len = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+				chunk_len = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			}
 			catch(err: Dynamic)
 			{
@@ -77,11 +77,11 @@ class DemuxUtils
 			}
 			chunk_id = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 
-			if(haxe.Int32.compare(chunk_id, MakeFourCC32(102,116,121,112) ) == 0 )	// fourcc equals ftyp
+			if(haxe.Int32.ucompare(chunk_id, MakeFourCC32(102,116,121,112) ) == 0 )	// fourcc equals ftyp
 			{
 				read_chunk_ftyp(qtmovie, chunk_len);
 			}
-			else if(haxe.Int32.compare(chunk_id, MakeFourCC32(109,111,111,118)) == 0 )	// fourcc equals moov
+			else if(haxe.Int32.ucompare(chunk_id, MakeFourCC32(109,111,111,118)) == 0 )	// fourcc equals moov
 			{
 				if (read_chunk_moov(qtmovie, chunk_len) == 0)
 					return 0; // failed to read moov, can't do anything
@@ -95,7 +95,7 @@ class DemuxUtils
 				 * and move on. We can then come back to mdat later.
 				 * This presumes the stream supports seeking backwards.
 				 */
-			else if(haxe.Int32.compare(chunk_id, MakeFourCC32(109,100,97,116)) == 0 )	// fourcc equals mdat
+			else if(haxe.Int32.ucompare(chunk_id, MakeFourCC32(109,100,97,116)) == 0 )	// fourcc equals mdat
 			{
 				var not_found_moov : Int = 0;
 				if(found_moov==0)
@@ -108,7 +108,7 @@ class DemuxUtils
 				found_mdat = 1;
 			}
 				/*  these following atoms can be skipped !!!! */
-			else if(haxe.Int32.compare(chunk_id, MakeFourCC32(102,114,101,101)) == 0 )	// fourcc equals free
+			else if(haxe.Int32.ucompare(chunk_id, MakeFourCC32(102,114,101,101)) == 0 )	// fourcc equals free
 			{
 				StreamUtils.stream_skip(qtmovie.qtstream, chunk_len - 8); // FIXME not 8
 			}
@@ -125,14 +125,14 @@ class DemuxUtils
 	/* chunk handlers */
 	static function read_chunk_ftyp(qtmovie : QTMovieT, chunk_len : Int) : Void
 	{
-		var type : haxe.Int32 = haxe.Int32.ofInt(0);
-		var minor_ver : haxe.Int32 = haxe.Int32.ofInt(0);
+		var type : haxe.Int32 = 0;
+		var minor_ver : haxe.Int32 = 0;
 		var size_remaining : Int = chunk_len - 8; // FIXME: can't hardcode 8, size may be 64bit
 
 		type = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 		size_remaining-=4;
 
-		if(haxe.Int32.compare(type, MakeFourCC32(77,52,65,32) ) != 0 )		// "M4A " ascii values
+		if(haxe.Int32.ucompare(type, MakeFourCC32(77,52,65,32) ) != 0 )		// "M4A " ascii values
 		{
 			trace("not M4A file");
 			return;
@@ -185,8 +185,8 @@ class DemuxUtils
 	/* media handler inside mdia */
 	static function read_chunk_hdlr(qtmovie : QTMovieT, chunk_len : Int) : Void
 	{
-		var comptype : haxe.Int32 = haxe.Int32.ofInt(0);
-		var compsubtype : haxe.Int32 = haxe.Int32.ofInt(0);
+		var comptype : haxe.Int32 = 0;
+		var compsubtype : haxe.Int32 = 0;
 		var size_remaining : Int = chunk_len - 8; // FIXME WRONG
 
 		var strlen : Int;
@@ -245,7 +245,7 @@ class DemuxUtils
 
 		try
 		{
-			numentries = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			numentries = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 		}
 		catch(err: Dynamic)
 		{
@@ -269,7 +269,7 @@ class DemuxUtils
 
 			var entry_remaining : Int;
 
-			entry_size = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			entry_size = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			qtmovie.res.format = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			entry_remaining = entry_size;
 			entry_remaining -= 8;
@@ -336,7 +336,7 @@ class DemuxUtils
 				StreamUtils.stream_skip(qtmovie.qtstream, entry_remaining);
 
 			qtmovie.res.format_read = 1;
-			if(haxe.Int32.compare(qtmovie.res.format, MakeFourCC32(97,108,97,99) ) != 0 )		// "alac" ascii values
+			if(haxe.Int32.ucompare(qtmovie.res.format, MakeFourCC32(97,108,97,99) ) != 0 )		// "alac" ascii values
 			{
 				return 0;
 			}
@@ -362,7 +362,7 @@ class DemuxUtils
 
 		try
 		{
-			numentries = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			numentries = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 		}
 		catch(err: Dynamic)
 		{
@@ -376,8 +376,8 @@ class DemuxUtils
 
 		for (i in 0 ... numentries)
 		{
-			qtmovie.res.time_to_sample[i].sample_count = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
-			qtmovie.res.time_to_sample[i].sample_duration = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			qtmovie.res.time_to_sample[i].sample_count = StreamUtils.stream_read_uint32(qtmovie.qtstream);
+			qtmovie.res.time_to_sample[i].sample_duration = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			size_remaining -= 8;
 		}
 
@@ -405,7 +405,7 @@ class DemuxUtils
 		size_remaining -= 3;
 
 		/* default sample size */
-		uniform_size = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+		uniform_size = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 		if (uniform_size != 0)
 		{
 			/*
@@ -415,7 +415,7 @@ class DemuxUtils
 	
 			var uniform_num : Int = 0;
 			
-			uniform_num = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			uniform_num = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			
 			qtmovie.res.num_sample_byte_sizes = uniform_num;
 			
@@ -430,7 +430,7 @@ class DemuxUtils
 
 		try
 		{
-			numentries = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			numentries = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 		}
 		catch(err: Dynamic)
 		{
@@ -444,7 +444,7 @@ class DemuxUtils
 
 		for (i in 0 ... numentries)
 		{
-			qtmovie.res.sample_byte_size[i] = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			qtmovie.res.sample_byte_size[i] = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 
 			size_remaining -= 4;
 		}
@@ -463,11 +463,11 @@ class DemuxUtils
 		while (size_remaining != 0)
 		{
 			var sub_chunk_len : Int;
-			var sub_chunk_id : haxe.Int32 = haxe.Int32.ofInt(0);
+			var sub_chunk_id : haxe.Int32 = 0;
 			
 			try
 			{
-				sub_chunk_len = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+				sub_chunk_len = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			}
 			catch(err: Dynamic)
 			{
@@ -483,25 +483,25 @@ class DemuxUtils
 
 			sub_chunk_id = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 
-			if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(115,116,115,100) ) == 0 )	// fourcc equals stsd
+			if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(115,116,115,100) ) == 0 )	// fourcc equals stsd
 			{
 				if (read_chunk_stsd(qtmovie, sub_chunk_len) == 0)
 					return 0;
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(115,116,116,115) ) == 0 )	// fourcc equals stts
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(115,116,116,115) ) == 0 )	// fourcc equals stts
 			{
 				read_chunk_stts(qtmovie, sub_chunk_len);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(115,116,115,122) ) == 0 )	// fourcc equals stsz
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(115,116,115,122) ) == 0 )	// fourcc equals stsz
 			{
 				read_chunk_stsz(qtmovie, sub_chunk_len);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(115,116,115,99) ) == 0 )	// fourcc equals stsc
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(115,116,115,99) ) == 0 )	// fourcc equals stsc
 			{
 				/* skip these, no indexing for us! */
 				StreamUtils.stream_skip(qtmovie.qtstream, sub_chunk_len - 8);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(115,116,99,111) ) == 0 )	// fourcc equals stco
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(115,116,99,111) ) == 0 )	// fourcc equals stco
 			{
 				/* skip these, no indexing for us! */
 				StreamUtils.stream_skip(qtmovie.qtstream, sub_chunk_len - 8);
@@ -529,7 +529,7 @@ class DemuxUtils
 	  
 	  	try
 		{
-			media_info_size = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			media_info_size = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 		}
 		catch(err: Dynamic)
 		{
@@ -542,7 +542,7 @@ class DemuxUtils
 			trace("unexpected size in media info\n");
 			return 0;
 		}
-		if (haxe.Int32.compare(StreamUtils.stream_read_uint32(qtmovie.qtstream), MakeFourCC32(115,109,104,100)) != 0)	// "smhd" ascii values
+		if (haxe.Int32.ucompare(StreamUtils.stream_read_uint32(qtmovie.qtstream), MakeFourCC32(115,109,104,100)) != 0)	// "smhd" ascii values
 		{
 			trace("not a sound header! can't handle this.");
 			return 0;
@@ -556,7 +556,7 @@ class DemuxUtils
 
 	  	try
 		{
-			dinf_size = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			dinf_size = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 		}
 		catch(err: Dynamic)
 		{
@@ -564,7 +564,7 @@ class DemuxUtils
 			dinf_size = 0;
 		}	  
 
-		if (haxe.Int32.compare(StreamUtils.stream_read_uint32(qtmovie.qtstream), MakeFourCC32(100,105,110,102)) != 0)	// "dinf" ascii values
+		if (haxe.Int32.ucompare(StreamUtils.stream_read_uint32(qtmovie.qtstream), MakeFourCC32(100,105,110,102)) != 0)	// "dinf" ascii values
 		{
 			trace("expected dinf, didn't get it.");
 			return 0;
@@ -578,7 +578,7 @@ class DemuxUtils
 	  /**** SAMPLE TABLE ****/
 	  	try
 		{
-			stbl_size = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+			stbl_size = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 		}
 		catch(err: Dynamic)
 		{
@@ -586,7 +586,7 @@ class DemuxUtils
 			stbl_size = 0;
 		}	
 		
-		if (haxe.Int32.compare(StreamUtils.stream_read_uint32(qtmovie.qtstream), MakeFourCC32(115,116,98,108)) != 0)	// "stbl" ascii values
+		if (haxe.Int32.ucompare(StreamUtils.stream_read_uint32(qtmovie.qtstream), MakeFourCC32(115,116,98,108)) != 0)	// "stbl" ascii values
 		{
 			trace("expected stbl, didn't get it.");
 			return 0;
@@ -611,11 +611,11 @@ class DemuxUtils
 		while (size_remaining != 0)
 		{
 			var sub_chunk_len : Int;
-			var sub_chunk_id  : haxe.Int32 = haxe.Int32.ofInt(0);
+			var sub_chunk_id  : haxe.Int32 = 0;
 
 			try
 			{
-				sub_chunk_len = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+				sub_chunk_len = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			}
 			catch(err: Dynamic)
 			{
@@ -631,15 +631,15 @@ class DemuxUtils
 
 			sub_chunk_id = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 
-			if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(109,100,104,100) ) == 0 )	// fourcc equals mdhd
+			if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(109,100,104,100) ) == 0 )	// fourcc equals mdhd
 			{
 				read_chunk_mdhd(qtmovie, sub_chunk_len);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(104,100,108,114) ) == 0 )	// fourcc equals hdlr
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(104,100,108,114) ) == 0 )	// fourcc equals hdlr
 			{
 				read_chunk_hdlr(qtmovie, sub_chunk_len);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(109,105,110,102) ) == 0 )	// fourcc equals minf
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(109,105,110,102) ) == 0 )	// fourcc equals minf
 			{
 				if (read_chunk_minf(qtmovie, sub_chunk_len) == 0)
 					return 0;
@@ -664,11 +664,11 @@ class DemuxUtils
 		while (size_remaining != 0)
 		{
 			var sub_chunk_len : Int;
-			var sub_chunk_id : haxe.Int32 = haxe.Int32.ofInt(0);
+			var sub_chunk_id : haxe.Int32 = 0;
 
 			try
 			{
-				sub_chunk_len = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+				sub_chunk_len = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			}
 			catch(err: Dynamic)
 			{
@@ -684,16 +684,16 @@ class DemuxUtils
 
 			sub_chunk_id = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 
-			if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(116,107,104,100) ) == 0 )	// fourcc equals tkhd
+			if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(116,107,104,100) ) == 0 )	// fourcc equals tkhd
 			{
 				read_chunk_tkhd(qtmovie, sub_chunk_len);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(109,100,105,97) ) == 0 )	// fourcc equals mdia
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(109,100,105,97) ) == 0 )	// fourcc equals mdia
 			{
 				if (read_chunk_mdia(qtmovie, sub_chunk_len) == 0)
 					return 0;
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(101,100,116,115) ) == 0 )	// fourcc equals edts
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(101,100,116,115) ) == 0 )	// fourcc equals edts
 			{
 				read_chunk_edts(qtmovie, sub_chunk_len);
 			}
@@ -744,11 +744,11 @@ class DemuxUtils
 		while (size_remaining != 0)
 		{
 			var sub_chunk_len : Int;
-			var sub_chunk_id : haxe.Int32 = haxe.Int32.ofInt(0);
+			var sub_chunk_id : haxe.Int32 = 0;
 			
 			try
 			{
-				sub_chunk_len = haxe.Int32.toInt(StreamUtils.stream_read_uint32(qtmovie.qtstream));
+				sub_chunk_len = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 			}
 			catch(err: Dynamic)
 			{
@@ -764,24 +764,24 @@ class DemuxUtils
 
 			sub_chunk_id = StreamUtils.stream_read_uint32(qtmovie.qtstream);
 
-			if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(109,118,104,100) ) == 0 )	// fourcc equals mvhd
+			if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(109,118,104,100) ) == 0 )	// fourcc equals mvhd
 			{
 				read_chunk_mvhd(qtmovie, sub_chunk_len);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(116,114,97,107) ) == 0 )	// fourcc equals trak
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(116,114,97,107) ) == 0 )	// fourcc equals trak
 			{
 				if (read_chunk_trak(qtmovie, sub_chunk_len) == 0)
 					return 0;
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(117,100,116,97) ) == 0 )	// fourcc equals udta
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(117,100,116,97) ) == 0 )	// fourcc equals udta
 			{
 				read_chunk_udta(qtmovie, sub_chunk_len);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(101,108,115,116) ) == 0 )	// fourcc equals elst
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(101,108,115,116) ) == 0 )	// fourcc equals elst
 			{
 				read_chunk_elst(qtmovie, sub_chunk_len);
 			}
-			else if(haxe.Int32.compare(sub_chunk_id, MakeFourCC32(105,111,100,115) ) == 0 )	// fourcc equals iods
+			else if(haxe.Int32.ucompare(sub_chunk_id, MakeFourCC32(105,111,100,115) ) == 0 )	// fourcc equals iods
 			{
 				read_chunk_iods(qtmovie, sub_chunk_len);
 			}

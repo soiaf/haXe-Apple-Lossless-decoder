@@ -1,7 +1,7 @@
 /*
 ** StreamUtils.hx
 **
-** Copyright (c) 2011 Peter McQuillan
+** Copyright (c) 2011-2014 Peter McQuillan
 **
 ** All Rights Reserved.
 **                       
@@ -38,8 +38,8 @@ class StreamUtils
 
 	public static function stream_read_uint32(mystream : MyStream) : haxe.Int32
 	{
-		var v : haxe.Int32 = haxe.Int32.ofInt(0);
-		var tmp : haxe.Int32 = haxe.Int32.ofInt(0);
+		var v : haxe.Int32 = 0;
+		var tmp : haxe.Int32 = 0;
 		var bytebuf = haxe.io.Bytes.alloc(4);
 		var bytes_read : Int = 0;
 
@@ -47,18 +47,18 @@ class StreamUtils
 		{
 			bytes_read = mystream.stream.readBytes(bytebuf, 0, 4);
 			mystream.currentPos = mystream.currentPos + 4;
-			tmp = haxe.Int32.ofInt(bytebuf.get(0));
+			tmp = bytebuf.get(0);
 
-			v = haxe.Int32.shl(tmp,24);
-			tmp = haxe.Int32.ofInt(bytebuf.get(1));
+			v = tmp << 24;
+			tmp = bytebuf.get(1);
 
-			v = haxe.Int32.or(v, haxe.Int32.shl(tmp,16));
-			tmp = haxe.Int32.ofInt(bytebuf.get(2));
+			v = (v | (tmp << 16));
+			tmp = bytebuf.get(2);
 
-			v = haxe.Int32.or(v, haxe.Int32.shl(tmp,8));
-			tmp = haxe.Int32.ofInt(bytebuf.get(3));
+			v = (v | (tmp << 8));
+			tmp = bytebuf.get(3);
 
-			v = haxe.Int32.or(v, tmp);
+			v = (v | tmp);
 
 		}
 		catch(err: Dynamic)

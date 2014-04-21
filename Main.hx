@@ -1,7 +1,7 @@
 /*
-** CPPMain.hx
+** Main.hx
 **
-** Copyright (c) 2011 Peter McQuillan
+** Copyright (c) 2011-2014 Peter McQuillan
 **
 ** All Rights Reserved.
 **                       
@@ -9,7 +9,7 @@
 **
 */
 
-class CPPMain
+class Main
 {
 	static var alac : AlacFile = new AlacFile();
 
@@ -80,13 +80,13 @@ class CPPMain
 
 		if (samplenum >= demux_res.num_sample_byte_sizes)
 		{
-			cpp.Lib.println("sample " + samplenum + " does not exist ");
+			Sys.println("sample " + samplenum + " does not exist ");
 			return 0;
 		}
 
 		if (demux_res.num_time_to_samples == 0)		// was null
 		{
-			cpp.Lib.println("no time to samples");
+			Sys.println("no time to samples");
 			return 0;
 		}
 		while ((demux_res.time_to_sample[duration_cur_index].sample_count + duration_index_accum) <= samplenum)
@@ -95,7 +95,7 @@ class CPPMain
 			duration_cur_index++;
 			if (duration_cur_index >= demux_res.num_time_to_samples)
 			{
-				cpp.Lib.println("sample " + samplenum + " does not have a duration");
+				Sys.println("sample " + samplenum + " does not have a duration");
 				return 0;
 			}
 		}
@@ -117,21 +117,21 @@ class CPPMain
 
 		var arg_idx:Int= 0;
 		// loop through command-line arguments
-		while (arg_idx < cpp.Sys.args().length)
+		while (arg_idx < Sys.args().length)
 		{
-			if (StringTools.startsWith(cpp.Sys.args()[arg_idx], "-"))
+			if (StringTools.startsWith(Sys.args()[arg_idx], "-"))
 			{
-				if (StringTools.startsWith(cpp.Sys.args()[arg_idx], "-r") || StringTools.startsWith(cpp.Sys.args()[arg_idx], "-R") )
+				if (StringTools.startsWith(Sys.args()[arg_idx], "-r") || StringTools.startsWith(Sys.args()[arg_idx], "-R") )
 				{
 					// raw PCM output
 					write_wav_format = 0;
 				}
-				if (StringTools.startsWith(cpp.Sys.args()[arg_idx], "-v") || StringTools.startsWith(cpp.Sys.args()[arg_idx], "-V") )
+				if (StringTools.startsWith(Sys.args()[arg_idx], "-v") || StringTools.startsWith(Sys.args()[arg_idx], "-V") )
 				{
 					// verbose
 					verbose = 1;
 				}
-				if (StringTools.startsWith(cpp.Sys.args()[arg_idx], "-t") || StringTools.startsWith(cpp.Sys.args()[arg_idx], "-T") )
+				if (StringTools.startsWith(Sys.args()[arg_idx], "-t") || StringTools.startsWith(Sys.args()[arg_idx], "-T") )
 				{
 					// test file type
 					test_file_type = 1;
@@ -139,15 +139,15 @@ class CPPMain
 			}
 			else if (input_file_n.length == 0)
 			{
-				input_file_n = cpp.Sys.args()[arg_idx];
+				input_file_n = Sys.args()[arg_idx];
 			}
 			else if (output_file_n.length == 0)
 			{
-				output_file_n = cpp.Sys.args()[arg_idx];
+				output_file_n = Sys.args()[arg_idx];
 			}
 			else
 			{
-				cpp.Lib.println("extra unknown argument: " + cpp.Sys.args()[arg_idx]);
+				Sys.println("extra unknown argument: " + Sys.args()[arg_idx]);
 				usage();
 			}
 			arg_idx++;
@@ -160,12 +160,12 @@ class CPPMain
 		{
 			// should probably check if file already exists here
 
-			output_stream = cpp.io.File.write(output_file_n,true);
+			output_stream = sys.io.File.write(output_file_n,true);
 
 			output_opened = 1;
 		}
 
-		input_stream = cpp.io.File.read(input_file_n,true);
+		input_stream = sys.io.File.read(input_file_n,true);
 
 		input_opened = 1;
 	}
@@ -208,7 +208,7 @@ class CPPMain
 			/* just get one sample for now */
 			if (get_sample_info(demux_res, i, sampleinfo) == 0)
 			{
-				cpp.Lib.println("sample failed");
+				Sys.println("sample failed");
 				return;
 			}
 
@@ -217,7 +217,7 @@ class CPPMain
 
 			if (buffer_size < sample_byte_size)
 			{
-				cpp.Lib.println("sorry buffer too small! (is " + buffer_size + " want " + sample_byte_size + ")");
+				Sys.println("sorry buffer too small! (is " + buffer_size + " want " + sample_byte_size + ")");
 				return;
 			}
 
@@ -232,7 +232,7 @@ class CPPMain
 			bytes_read += outputBytes;
 
 			if (verbose != 0)
-				cpp.Lib.println("read " + outputBytes + " bytes. total: " + bytes_read);
+				Sys.println("read " + outputBytes + " bytes. total: " + bytes_read);
 				
 			pcmBuffer = format_samples(bps, pDestBuffer, outputBytes);
 
@@ -247,7 +247,7 @@ class CPPMain
 			output_stream.writeBytes(buffAsBytes, 0, outputBytes );
 		}
 		if (verbose != 0)
-			cpp.Lib.println("done reading, read " + i + " frames");
+			Sys.println("done reading, read " + i + " frames");
 	}
 
 	static function init_sound_converter(demux_res : DemuxResT) : Void
@@ -259,18 +259,18 @@ class CPPMain
 
 	static function usage() : Void
 	{
-		cpp.Lib.println("Usage: alac [options] inputfile outputfile");
-		cpp.Lib.println("Decompresses the ALAC file specified");
-		cpp.Lib.println("Options:");
-		cpp.Lib.println("  -r                write output as raw PCM data. Default");
-		cpp.Lib.println("                    is in WAV format.");
-		cpp.Lib.println("  -v                verbose output.");
-		cpp.Lib.println("  -t                test that file is ALAC, also tests for");
-		cpp.Lib.println("                    other m4a file types.");
-		cpp.Lib.println("");
-		cpp.Lib.println("This port of the code is (c) Peter McQuillan 2011");
-		cpp.Lib.println("Original software is (c) 2005 David Hammerton");
-		cpp.Sys.exit(1);
+		Sys.println("Usage: alac [options] inputfile outputfile");
+		Sys.println("Decompresses the ALAC file specified");
+		Sys.println("Options:");
+		Sys.println("  -r                write output as raw PCM data. Default");
+		Sys.println("                    is in WAV format.");
+		Sys.println("  -v                verbose output.");
+		Sys.println("  -t                test that file is ALAC, also tests for");
+		Sys.println("                    other m4a file types.");
+		Sys.println("");
+		Sys.println("This port of the code is (c) 2014 Peter McQuillan");
+		Sys.println("Original software is (c) 2005 David Hammerton");
+		Sys.exit(1);
 	}
 
 	public static function main()
@@ -284,11 +284,11 @@ class CPPMain
 		output_opened = 0;
 		input_opened = 0;
 
-		setup_environment(cpp.Sys.args().length, cpp.Sys.args());
+		setup_environment(Sys.args().length, Sys.args());
 
 		if (input_stream == null)
 		{
-			cpp.Lib.println("failed to create input stream from file");
+			Sys.println("failed to create input stream from file");
 			return 1;
 		}
 
@@ -300,18 +300,18 @@ class CPPMain
 		{
 			if (test_file_type == 0 || demux_res.format_read == 0)
 			{
-				cpp.Lib.println("failed to load the QuickTime movie headers");
+				Sys.println("failed to load the QuickTime movie headers");
 				if (demux_res.format_read != 0)
-					 cpp.Lib.println("file type: " + demux_res.format);
+					 Sys.println("file type: " + demux_res.format);
 				else
-					 cpp.Lib.println("");
+					 Sys.println("");
 				return 1;
 			}
 		}
 		else if(headerRead == 3)
 		{
 			input_stream.close();
-			input_stream = cpp.io.File.read(input_file_n,true);
+			input_stream = sys.io.File.read(input_file_n,true);
 			qtmovie.qtstream.stream = input_stream;
 			qtmovie.qtstream.currentPos = 0;
 			StreamUtils.stream_skip(qtmovie.qtstream, qtmovie.saved_mdat_pos);
@@ -322,17 +322,17 @@ class CPPMain
 			/* just in case: */
 			if (demux_res.format_read == 0)
 			{
-				cpp.Lib.println("failed to load the QuickTime movie headers." + " Probably not a quicktime file");
+				Sys.println("failed to load the QuickTime movie headers." + " Probably not a quicktime file");
 				return 1;
 			}
-			cpp.Lib.println("file type: " + demux_res.format);
+			Sys.println("file type: " + demux_res.format);
 			/* now, we have to return useful return codes */
 			
-			if(haxe.Int32.compare(demux_res.format, DemuxUtils.MakeFourCC32(97,108,97,99) ) == 0 )		// "alac" ascii values
+			if(haxe.Int32.ucompare(demux_res.format, DemuxUtils.MakeFourCC32(97,108,97,99) ) == 0 )		// "alac" ascii values
 			{
 				return 100;
 			}
-			else if(haxe.Int32.compare(demux_res.format, DemuxUtils.MakeFourCC32(109,112,52,97) ) == 0 )		// "mp4a" ascii values
+			else if(haxe.Int32.ucompare(demux_res.format, DemuxUtils.MakeFourCC32(109,112,52,97) ) == 0 )		// "mp4a" ascii values
 			{
 				return 100; // m4pa = unencrypted aac = 100
 			}

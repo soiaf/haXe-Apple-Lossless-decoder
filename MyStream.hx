@@ -1,7 +1,7 @@
 /*
 ** MyStream.hx
 **
-** Copyright (c) 2011 Peter McQuillan
+** Copyright (c) 2011-2014 Peter McQuillan
 **
 ** All Rights Reserved.
 **                       

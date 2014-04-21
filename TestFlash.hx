@@ -1,7 +1,7 @@
 /*
 ** TestFlash.hx
 **
-** Copyright (c) 2011 Peter McQuillan
+** Copyright (c) 2011-2014 Peter McQuillan
 **
 ** All Rights Reserved.
 **                       
@@ -11,29 +11,29 @@
 
 class TestFlash
 {
-    static var s : flash.media.Sound;
-    var sch : flash.media.SoundChannel;
-    var total_unpacked_samples : Float;
-    static var num_channels : Int;
-    static var bps : Int;
+	static var s : flash.media.Sound;
+	var sch : flash.media.SoundChannel;
+	var total_unpacked_samples : Float;
+	static var num_channels : Int;
+	static var bps : Int;
 	static var currentBlock : Int;
 
-    static var mc : flash.display.MovieClip;
-    static var stage : Dynamic; 
-    static var playBtn : flash.display.Sprite;
-    static var stopBtn : flash.display.Sprite;
-    static var te : flash.text.TextField;
+	static var mc : flash.display.MovieClip;
+	static var stage : Dynamic; 
+	static var playBtn : flash.display.Sprite;
+	static var stopBtn : flash.display.Sprite;
+	static var te : flash.text.TextField;
 	
 	static var alac : AlacFile = new AlacFile();
 	static var demux_res : DemuxResT;
 
-    var fr : flash.net.FileReference;
+	var fr : flash.net.FileReference;
 
-    //File types which we want the user to open 
+	//File types which we want the user to open 
 
-    private static var FILE_TYPES : Array <flash.net.FileFilter> = [new flash.net.FileFilter("Apple Lossless File", "*.m4a;*.M4A")]; 
+	private static var FILE_TYPES : Array <flash.net.FileFilter> = [new flash.net.FileFilter("Apple Lossless File", "*.m4a;*.M4A")]; 
 
-    static var bistream;
+	static var bistream;
 
 	private function init_sound_converter(demux_res : DemuxResT) : Void
 	{
@@ -42,18 +42,18 @@ class TestFlash
 		AlacUtils.alac_set_info(alac, demux_res.codecdata);
 	}
 
-    private function onLoadComplete(e: flash.events.Event) : Void 
-    {
+	private function onLoadComplete(e: flash.events.Event) : Void 
+	{
 	
 		var qtmovie : QTMovieT = new QTMovieT();
 		var headerRead : Int;
 		var errorState = 0;
 		
-        te.text = "File loaded\n";
+		te.text = "File loaded\n";
  //       te.text = te.text + "total num of bytes in ALAC file " + fr.size + "\n";
 
-        var filebytes = haxe.io.Bytes.ofData(fr.data);  
-        var sampleRate : Int;
+		var filebytes = haxe.io.Bytes.ofData(fr.data);  
+		var sampleRate : Int;
 
 		demux_res = new DemuxResT();
 		currentBlock = 0;
@@ -272,8 +272,8 @@ class TestFlash
         }
         catch (err: Dynamic)
         {
-            var es = haxe.Stack.exceptionStack();
-            te.text = te.text + haxe.Stack.toString(es) + "\n";
+            var es = haxe.CallStack.exceptionStack();
+            te.text = te.text + haxe.CallStack.toString(es) + "\n";
             te.text = te.text + "Error when extracting ALAC data, sorry";           
         }
 
@@ -431,7 +431,7 @@ class TestFlash
             te.y=80;
 			mc.addChild(te);
 
-			te.text = "Apple Lossless decoder flash demo (c) 2011 Peter McQuillan\n\n";
+			te.text = "Apple Lossless decoder flash demo (c) 2014 Peter McQuillan\n\n";
             te.text = te.text + "Click the Play button to select a Apple Lossless file to listen to\n";
             te.text = te.text + "ALAC file should be a 16bit 44.1kHz file (normal CD)";
  
@@ -442,7 +442,7 @@ class TestFlash
             
             var w : Int = 60;
             var h : Int = 40;
-            var colors : Array <Int> = [0xF5F5F5, 0xA0A0A0];
+            var colors : Array <UInt> = [0xF5F5F5, 0xA0A0A0];
             var alphas : Array <Int>  = [1, 1];
             var ratios : Array <Int> = [0, 255];
             var matrix : flash.geom.Matrix = new flash.geom.Matrix();
@@ -475,7 +475,7 @@ class TestFlash
             0.65, flash.filters.BitmapFilterQuality.HIGH, false, false
             );
     
-            var af : Array < Dynamic > = new Array();
+            var af : Array < flash.filters.BitmapFilter > = new Array();
             af.push(shadow);
             playBtn.filters = af;
             playBtn.alpha = 0.5;
@@ -522,7 +522,7 @@ class TestFlash
             0.65, flash.filters.BitmapFilterQuality.HIGH, false, false
             );
     
-            var af : Array < Dynamic > = new Array();
+            var af : Array < flash.filters.BitmapFilter > = new Array();
             af.push(shadow);
             stopBtn.filters = af;
             stopBtn.alpha = 0.5;

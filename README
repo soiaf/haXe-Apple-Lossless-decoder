@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////
 //            haXe Implementation of Apple Lossless Decoder               //
-//                 Copyright (c) 2011 Peter McQuillan                     //
+//              Copyright (c) 2011-2014 Peter McQuillan                   //
 //                          All Rights Reserved.                          //
 //      Distributed under the BSD Software License (see license.txt)      //
 ////////////////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@ Apple Lossless audio file as input and output a RIFF wav file.
 One demo command-line program is designed to run with Neko, the
 other uses your C++ compiler to produce a native executable.
 
-The program was developed using haXe compiler 2.07 and NekoVM 1.8.1
+The program was developed using haXe compiler 3.1.3
 
 ===
 To compile the .hx files for use with Neko, use the following command
@@ -45,11 +45,11 @@ haxe cppALAC.hxml
 
 This will create a directory called haxecpp. In this directory you will find all
 the generated C++ files.
-You will also find an executable called CPPMain
+You will also find an executable called Main
 
 To run this executable, use the following command
 
-./CPPMain <input.m4a> <output.wav>
+./Main <input.m4a> <output.wav>
 
 where input.m4a is the name of the Apple Lossless file you wish to decode to a WAV file.
 
@@ -65,7 +65,7 @@ haxe flashALAC.hxml
 When you call the SWF file it will display a Play button, clicking on this will 
 bring up a file browser prompt. Using this file browser, select a Apple Lossless file 
 you wish to play.
-Flash 10 is required to use this demo SWF file.
+A minimum of Flash 10 is required to use this demo SWF file.
 ===
 
 This code is ported from v0.2.0 of the Apple Lossless decoder written by David Hammerton.

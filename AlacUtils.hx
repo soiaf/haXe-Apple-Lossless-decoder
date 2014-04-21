@@ -1,7 +1,7 @@
 /*
 ** AlacUtils.hx
 **
-** Copyright (c) 2011 Peter McQuillan
+** Copyright (c) 2011-2014 Peter McQuillan
 **
 ** All Rights Reserved.
 **                       
@@ -66,7 +66,7 @@ class AlacUtils
 		part2 = alac.input_buffer[alac.ibIdx + 1];
 		part3 = alac.input_buffer[alac.ibIdx + 2];
 
-#if !flash10		
+#if (neko)
 		if(part1==null)
 			part1 = 0;
 
@@ -127,7 +127,7 @@ class AlacUtils
 		
 		part1 = alac.input_buffer[alac.ibIdx];
 	
-#if !flash10	
+#if (neko)
 		if(part1==null)
 			part1 = 0;
 #end
@@ -406,7 +406,7 @@ class AlacUtils
 				error_value = error_buffer[i+1];
 
 				bitsmove = 32 - readsamplesize;
-				buffer_out[i+1] = haxe.Int32.toInt(haxe.Int32.shr(haxe.Int32.shl(haxe.Int32.ofInt(prev_value + error_value),bitsmove),bitsmove));
+				buffer_out[i+1] = ((prev_value + error_value) << bitsmove) >> bitsmove;
 			}
 			return(buffer_out);
 		}
@@ -422,7 +422,7 @@ class AlacUtils
 
 				bitsmove = 32 - readsamplesize;
 
-				val = haxe.Int32.toInt(haxe.Int32.shr(haxe.Int32.shl(haxe.Int32.ofInt(val),bitsmove),bitsmove));
+				val = (val << bitsmove) >> bitsmove;
 
 				buffer_out[i+1] = val;
 			}
@@ -449,7 +449,7 @@ class AlacUtils
 				outval = outval + buffer_out[buffer_out_idx] + error_val;
 				bitsmove = 32 - readsamplesize;
 
-				outval = haxe.Int32.toInt(haxe.Int32.shr(haxe.Int32.shl(haxe.Int32.ofInt(outval),bitsmove),bitsmove));
+				outval = (outval << bitsmove) >> bitsmove;
 
 				buffer_out[buffer_out_idx+predictor_coef_num+1] = outval;
 
@@ -575,7 +575,7 @@ class AlacUtils
 
 				if (uncompressed_bytes != 0)
 				{
-					var mask : Int = haxe.Int32.toInt(haxe.Int32.complement(haxe.Int32.ofInt((0xFFFFFFFF << (uncompressed_bytes * 8)))));
+					var mask : Int = ~(((0xFFFFFFFF << (uncompressed_bytes * 8))));
 					left <<= (uncompressed_bytes * 8);
 					right <<= (uncompressed_bytes * 8);
 
@@ -606,7 +606,7 @@ class AlacUtils
 
 			if (uncompressed_bytes != 0)
 			{
-				var mask : Int = haxe.Int32.toInt(haxe.Int32.complement(haxe.Int32.ofInt((0xFFFFFFFF << (uncompressed_bytes * 8)))));
+				var mask : Int = ~(((0xFFFFFFFF << (uncompressed_bytes * 8))));
 				left <<= (uncompressed_bytes * 8);
 				right <<= (uncompressed_bytes * 8);
 
@@ -749,7 +749,7 @@ class AlacUtils
 						var audiobits : Int = readbits(alac, alac.setinfo_sample_size);
 						bitsmove = 32 - alac.setinfo_sample_size;
 
-						audiobits = haxe.Int32.toInt(haxe.Int32.shr(haxe.Int32.shl(haxe.Int32.ofInt(audiobits),bitsmove),bitsmove));
+						audiobits = (audiobits << bitsmove) >> bitsmove;
 
 						alac.outputsamples_buffer_a[i] = audiobits;
 					}
@@ -808,7 +808,7 @@ class AlacUtils
 					{
 						var mask : Int = 0;
 						sample = sample << (uncompressed_bytes * 8);
-						mask = haxe.Int32.toInt(haxe.Int32.complement(haxe.Int32.ofInt((0xFFFFFFFF << (uncompressed_bytes * 8)))));
+						mask = ~(((0xFFFFFFFF << (uncompressed_bytes * 8))));
 						sample = sample | (alac.uncompressed_bytes_buffer_a[i] & mask);
 					}
 
@@ -981,8 +981,8 @@ class AlacUtils
 						
 						bitsmove = 32 - alac.setinfo_sample_size;
 
-						audiobits_a = haxe.Int32.toInt(haxe.Int32.shr(haxe.Int32.shl(haxe.Int32.ofInt(audiobits_a),bitsmove),bitsmove));
-						audiobits_b = haxe.Int32.toInt(haxe.Int32.shr(haxe.Int32.shl(haxe.Int32.ofInt(audiobits_b),bitsmove),bitsmove));
+						audiobits_a = (audiobits_a << bitsmove) >> bitsmove;
+						audiobits_b = (audiobits_b << bitsmove) >> bitsmove;
 
 						alac.outputsamples_buffer_a[i] = audiobits_a;
 						alac.outputsamples_buffer_b[i] = audiobits_b;

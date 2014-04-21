@@ -1,7 +1,7 @@
 /*
 ** DemuxResT.hx
 **
-** Copyright (c) 2011 Peter McQuillan
+** Copyright (c) 2011-2014 Peter McQuillan
 **
 ** All Rights Reserved.
 **                       
@@ -52,6 +52,6 @@ class DemuxResT
 		codecdata = new Array();
 #end
 		
-		format = haxe.Int32.ofInt(0);
+		format = 0;
 	}
 }
